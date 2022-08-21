@@ -1,0 +1,15 @@
+.idea
+__pycache__
+videos
+env
+exp_local
+rl_exp_local
+cmc_exp_local
+
+*.sh
+*.ipynb
+
+tmp
+experts
+
+
