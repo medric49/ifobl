@@ -7,7 +7,6 @@ rl_exp_local
 cmc_exp_local
 
 *.sh
-*.ipynb
 
 tmp
 experts
