@@ -5,6 +5,7 @@ env
 exp_local
 rl_exp_local
 cmc_exp_local
+notebooks
 
 *.sh
 
