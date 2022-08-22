@@ -14,8 +14,8 @@ class Env(dm_env.Environment):
         env_set = metaworld.MT10()
         self._metaworld_env = env_set.train_classes[env_name]()
         self._tasks = [task for task in env_set.train_tasks if task.env_name == env_name]
-        self.im_width = im_width
-        self.im_height = im_height
+        self.im_w = im_width
+        self.im_h = im_height
 
         self.step_id = None
         self._pixels_key = 'pixels'
@@ -27,7 +27,7 @@ class Env(dm_env.Environment):
         self._metaworld_obs = self._metaworld_env.reset()
         self.step_id = 0
 
-        self._observation = self._metaworld_env.render(offscreen=True, resolution=(self.im_width, self.im_height))
+        self._observation = self._metaworld_env.render(offscreen=True, resolution=(self.im_w, self.im_h))
 
         observation = collections.OrderedDict()
         observation[self._pixels_key] = np.array(self._observation, dtype=np.uint8)
@@ -39,7 +39,7 @@ class Env(dm_env.Environment):
         self._metaworld_obs = obs
         self.step_id += 1
 
-        self._observation = self._metaworld_env.render(offscreen=True, resolution=(self.im_width, self.im_height))
+        self._observation = self._metaworld_env.render(offscreen=True, resolution=(self.im_w, self.im_h))
 
         observation = collections.OrderedDict()
         observation[self._pixels_key] = np.array(self._observation, dtype=np.uint8)
@@ -50,7 +50,7 @@ class Env(dm_env.Environment):
 
     def observation_spec(self):
         observation_spec = collections.OrderedDict()
-        observation_spec[self._pixels_key] = Array(shape=(self.im_height, self.im_width, 3), dtype=np.uint8,
+        observation_spec[self._pixels_key] = Array(shape=(self.im_h, self.im_w, 3), dtype=np.uint8,
                                                    name='observation')
         return observation_spec
 

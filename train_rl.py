@@ -119,8 +119,8 @@ class Workspace:
         self.encoder.eval()
         self.encoder.deactivate_state_update()
 
-        self.train_env = dmc.EncoderStackWrapper(self.train_env, self.encoder, self.cfg.agent.state_dim, self.cfg.frame_stack, self.expert_video_dir, self.cfg.episode_len, self.cfg.im_w, self.cfg.im_h, to_lab=self.cfg.to_lab)
-        self.eval_env = dmc.EncoderStackWrapper(self.eval_env, self.encoder, self.cfg.agent.state_dim, self.cfg.frame_stack, self.expert_video_dir, self.cfg.episode_len, self.cfg.im_w, self.cfg.im_h, to_lab=self.cfg.to_lab)
+        self.train_env = dmc.EncoderStackWrapper(self.train_env, self.encoder, self.cfg.agent.state_dim)
+        self.eval_env = dmc.EncoderStackWrapper(self.eval_env, self.encoder, self.cfg.agent.state_dim)
 
         # create replay buffer
         data_specs = (
@@ -225,7 +225,7 @@ class Workspace:
                 self._global_episode += 1
                 self.train_video_recorder.save(f'{self.global_frame}.mp4')
 
-                episode_rewards = self.train_env.compute_episode_reward()
+                episode_rewards = self.train_env.compute_episode_reward(expert_video_dir=self.expert_video_dir)
                 for i, ts in enumerate(self.episode_time_steps):
                     reward = episode_rewards[i] if i != 0 else 0.
                     self.replay_storage.add(ts._replace(reward=reward))
