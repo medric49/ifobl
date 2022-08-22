@@ -1,8 +1,6 @@
-import sys
 import warnings
 
 import cmc_model
-import virl_model
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
