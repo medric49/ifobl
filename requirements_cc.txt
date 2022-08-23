@@ -10,7 +10,6 @@ hydra-submitit-launcher==1.1.6
 pandas
 tdqm
 
-
 absl-py==1.2.0
 mujoco_py==2.1.2.14
 dm_control==1.0.3
@@ -20,5 +19,5 @@ imageio-ffmpeg==0.4.4
 termcolor==1.1.0
 
 pyyaml
-scipy==1.8.0+computecanada
+scipy==1.5.4
 git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
