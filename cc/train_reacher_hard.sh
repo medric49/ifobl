@@ -9,6 +9,7 @@
 #SBATCH --mail-type=ALL
 
 module load python
+module load gcc
 source venv/bin/activate
 
 python train.py task=reacher_hard exp_id=1 exp_group=reacher_hard

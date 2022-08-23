@@ -11,7 +11,6 @@ pandas
 tdqm
 
 absl-py==1.2.0
-mujoco_py==2.1.2.14
 dm_control==0.0.403778684
 opencv-python==4.5.1.48+computecanada
 imageio==2.9.0

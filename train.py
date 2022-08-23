@@ -1,6 +1,6 @@
 import warnings
 
-import metaworld_env
+# import metaworld_env
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 import torch
@@ -63,9 +63,9 @@ class Workspace:
                                       self.cfg.action_repeat, self.cfg.seed, self.cfg.get('xml_path', None))
             self.eval_env = dmc.make(self.cfg.task_name, self.cfg.frame_stack,
                                      self.cfg.action_repeat, self.cfg.seed, self.cfg.get('xml_path', None))
-        else:
-            self.train_env = metaworld_env.Env(env_name=self.cfg.task_name)
-            self.eval_env = metaworld_env.Env(env_name=self.cfg.task_name)
+        # else:
+        #     self.train_env = metaworld_env.Env(env_name=self.cfg.task_name)
+        #     self.eval_env = metaworld_env.Env(env_name=self.cfg.task_name)
 
             self.train_env = dmc.wrap(self.train_env, self.cfg.frame_stack, self.cfg.action_repeat)
             self.eval_env = dmc.wrap(self.eval_env, self.cfg.frame_stack, self.cfg.action_repeat)

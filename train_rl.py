@@ -5,7 +5,7 @@ import time
 
 import cmc_model
 import datasets
-import metaworld_env
+# import metaworld_env
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
@@ -52,16 +52,16 @@ class Workspace:
             self.expert_env = dmc.make(self.cfg.task_name, self.cfg.frame_stack,
                                        self.cfg.action_repeat, self.cfg.seed, self.cfg.get('xml_path', None),
                                        episode_len=self.cfg.episode_len)
-        else:
-            self.expert_env = metaworld_env.Env(self.cfg.task_name)
-            self.expert_env = dmc.wrap(self.expert_env, self.cfg.frame_stack, self.cfg.action_repeat, episode_len=self.cfg.episode_len)
+        # else:
+        #     self.expert_env = metaworld_env.Env(self.cfg.task_name)
+        #     self.expert_env = dmc.wrap(self.expert_env, self.cfg.frame_stack, self.cfg.action_repeat, episode_len=self.cfg.episode_len)
 
         if not self.cfg.get('metaworld_policy', None):
             self.expert: drqv2.DrQV2Agent = drqv2.DrQV2Agent.load(to_absolute_path(self.cfg.expert_file))
             self.expert.train(training=False)
-        else:
-            policy = hydra.utils.instantiate(self.cfg.metaworld_policy)
-            self.expert = metaworld_env.Expert(policy, self.expert_env)
+        # else:
+        #     policy = hydra.utils.instantiate(self.cfg.metaworld_policy)
+        #     self.expert = metaworld_env.Expert(policy, self.expert_env)
 
         video_dir = Path(to_absolute_path(self.cfg.video_dir))
         self.expert_video_dir = video_dir / '../train/0'
