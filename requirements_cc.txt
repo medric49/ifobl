@@ -19,5 +19,5 @@ imageio-ffmpeg==0.4.4
 termcolor==1.1.0
 
 pyyaml
-scipy==1.5.4
+scipy
 git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
