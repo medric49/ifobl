@@ -4,7 +4,7 @@
 #SBATCH --mem=32G       # Memory proportional to GPUs: 32000 Cedar, 64000 Graham.
 #SBATCH --time=10:00:00
 #SBATCH --output=%N-%j.out
-#SBATCH --account=def-eugenium
+#SBATCH --account=rrg-eugenium
 #SBATCH --mail-user=medric49@gmail.com
 #SBATCH --mail-type=ALL
 
