@@ -7,8 +7,6 @@ rl_exp_local
 cmc_exp_local
 notebooks
 
-*.sh
-
 tmp
 experts
 
