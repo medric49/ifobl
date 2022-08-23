@@ -3,8 +3,6 @@ import warnings
 import metaworld_env
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
-import os
-os.environ['DISABLE_MUJOCO_RENDERING'] = '1'
 import torch
 
 
