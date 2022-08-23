@@ -71,13 +71,11 @@ class ActionRepeatWrapper(dm_env.Environment):
 
 
 class FrameStackWrapper(dm_env.Environment):
-    def __init__(self, env, num_frames, pixels_key='pixels', to_lab=False, normalize_img=False):
+    def __init__(self, env, num_frames, pixels_key='pixels'):
         self._env = env
         self._num_frames = num_frames
         self._frames = deque([], maxlen=num_frames)
         self._pixels_key = pixels_key
-        self.to_lab = to_lab
-        self.normalize_img = normalize_img
 
         wrapped_obs_spec = env.observation_spec()
         assert pixels_key in wrapped_obs_spec
@@ -145,47 +143,24 @@ class FrameStackWrapper(dm_env.Environment):
 
 
 class EncoderStackWrapper(dm_env.Environment):
-    def __init__(self, env, encoder, state_dim, frame_stack, expert_video_dir, episode_len=None, im_w=64, im_h=64, to_lab=False):
+    def __init__(self, env, encoder, state_dim):
 
         self._env = env
         self.encoder: cmc_model.CMCModel = encoder
         self.encoder.eval()
 
         self.state_dim = state_dim
-        self.frame_stack = frame_stack
-
-        self.expert_video_dir = expert_video_dir
-        self.episode_len = episode_len
-
-        self.im_w = im_w
-        self.im_h = im_h
-        self.to_lab = to_lab
 
         self.expert_seq_states = None
+        self.agent_seq_states = None
         self.agent_states = None
 
-        self.init_channel = self._env.observation_spec().shape[0] // self.frame_stack
-
-    def make_expert_states(self):
-        episode = datasets.VideoDataset.sample_from_dir(self.expert_video_dir, self.episode_len, self.im_w, self.im_h, self.to_lab)
-        with torch.no_grad():
-            T = len(episode)
-            batches = []
-            for i in range(0, T, 64):
-                batch = episode[i: i+64]
-                batch = np.array(batch)
-                batch = torch.tensor(batch.transpose((0, 3, 1, 2)), device=utils.device(), dtype=torch.float)
-                e_seq = self.encoder.encode_frame(batch)
-                del batch
-                batches.append(e_seq)
-            e_seq = torch.concat(batches)
-            z_seq = self.encoder.encode_state_seq(e_seq)
-        return z_seq.cpu().numpy()
+        self.frame_stack = self._env.observation_spec().shape[0] // 3
 
     def encode(self, observation):
         frames = []
         for i in range(self.frame_stack):
-            frames.append(observation[self.init_channel * i: self.init_channel * (i+1)])
+            frames.append(observation[3 * i: 3 * (i+1)])
         frames = np.array(frames, dtype=np.float)
         with torch.no_grad():
             frames = torch.tensor(frames, device=utils.device(), dtype=torch.float)
@@ -194,15 +169,38 @@ class EncoderStackWrapper(dm_env.Environment):
             states = states.cpu().numpy()
         return states
 
-    def compute_episode_reward(self):
+    def compute_episode_reward(self, expert_video_dir=None, video_frame=None):
+        if expert_video_dir is None and video_frame is None:
+            raise ValueError
+        if expert_video_dir is not None:
+            episode = datasets.VideoDataset.sample_from_dir(expert_video_dir, self.episode_len, self.im_w, self.im_h,
+                                                            self.to_lab)
+        else:
+            episode = video_frame[:self.episode_len + 1]
+            episode = datasets.VideoDataset.normalize_frames(episode, self.im_w, self.im_h, self.to_lab)
+
+        with torch.no_grad():
+            T = len(episode)
+            batches = []
+            for i in range(0, T, 64):
+                batch = episode[i: i + 64]
+                batch = np.array(batch)
+                batch = torch.tensor(batch.transpose((0, 3, 1, 2)), device=utils.device(), dtype=torch.float)
+                e_seq = self.encoder.encode_frame(batch)
+                del batch
+                batches.append(e_seq)
+            e_seq = torch.concat(batches)
+            z_seq = self.encoder.encode_state_seq(e_seq)
+
+        self.expert_seq_states = z_seq.cpu().numpy()
+
         s_seq = torch.tensor(np.array(self.agent_states), dtype=torch.float, device=utils.device())
         with torch.no_grad():
-            agent_seq_states = self.encoder.encode_state_seq(s_seq).cpu().numpy()
-            rewards = - np.linalg.norm(agent_seq_states - self.expert_seq_states, axis=1)
+            self.agent_seq_states = self.encoder.encode_state_seq(s_seq).cpu().numpy()
+            rewards = - np.linalg.norm(self.agent_seq_states - self.expert_seq_states, axis=1)
         return rewards
 
     def reset(self) -> TimeStep:
-        self.expert_seq_states = self.make_expert_states()
         self.agent_states = []
         time_step = self._env.reset()
         with torch.no_grad():
@@ -288,12 +286,10 @@ class ExtendedTimeStepWrapper(dm_env.Environment):
 
 
 class ChangeContextWrapper(dm_env.Environment):
-    def __init__(self, env, context_changer: context_changers.ContextChanger, camera_id, im_h, im_w, pixels_key):
+    def __init__(self, env, context_changer: context_changers.ContextChanger, camera_id, pixels_key):
         self._context_changer = context_changer
         self._env = env
         self._camera_id = camera_id
-        self._im_h = im_h
-        self._im_w = im_w
         self._pixels_key = pixels_key
 
     def reset(self):
@@ -301,7 +297,7 @@ class ChangeContextWrapper(dm_env.Environment):
         time_step = self._env.reset()
         self._context_changer.change_env(self._env)
         observation = time_step.observation
-        observation[self._pixels_key] = self._env.physics.render(height=self._im_h, width=self._im_w,
+        observation[self._pixels_key] = self._env.physics.render(height=self.im_h, width=self.im_w,
                                                                  camera_id=self._camera_id)
         time_step = time_step._replace(observation=observation)
         return time_step
@@ -310,7 +306,7 @@ class ChangeContextWrapper(dm_env.Environment):
         time_step = self._env.step(action)
         self._context_changer.change_env(self._env)
         observation = time_step.observation
-        observation[self._pixels_key] = self._env.physics.render(height=self._im_h, width=self._im_w,
+        observation[self._pixels_key] = self._env.physics.render(height=self.im_h, width=self.im_w,
                                                                  camera_id=self._camera_id)
         time_step = time_step._replace(observation=observation)
         return time_step
@@ -371,6 +367,12 @@ def make(name, frame_stack, action_repeat, seed, xml_path=None, camera_id=None, 
     if xml_path is not None:
         env.physics.reload_from_xml_path(to_absolute_path(xml_path))
 
+    env.im_w = im_w
+    env.im_h = im_h
+    env.to_lab = to_lab
+    env.normalize_img = normalize_img
+    env.episode_len = episode_len
+
     # add wrappers
     env = ActionDTypeWrapper(env, np.float32)
     env = ActionRepeatWrapper(env, action_repeat)
@@ -385,9 +387,9 @@ def make(name, frame_stack, action_repeat, seed, xml_path=None, camera_id=None, 
                              pixels_only=True,
                              render_kwargs=render_kwargs)
         if context_changer is not None:
-            env = ChangeContextWrapper(env, context_changer, camera_id, im_h, im_w, pixels_key)
+            env = ChangeContextWrapper(env, context_changer, camera_id, pixels_key)
     # stack several frames
-    env = FrameStackWrapper(env, frame_stack, pixels_key, to_lab, normalize_img)
+    env = FrameStackWrapper(env, frame_stack, pixels_key)
     env = ExtendedTimeStepWrapper(env)
     if episode_len is not None:
         env = EpisodeLenWrapper(env, episode_len)
@@ -395,6 +397,9 @@ def make(name, frame_stack, action_repeat, seed, xml_path=None, camera_id=None, 
 
 
 def wrap(env, frame_stack, action_repeat, episode_len=None, to_lab=False, normalize_img=False):
+    env.to_lab = to_lab
+    env.normalize_img = normalize_img
+    env.episode_len = episode_len
     env = ActionDTypeWrapper(env, np.float32)
     env = ActionRepeatWrapper(env, action_repeat)
     env = action_scale.Wrapper(env, minimum=-1.0, maximum=+1.0)
