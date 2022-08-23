@@ -16,7 +16,7 @@ opencv-python==4.5.1.48+computecanada
 imageio==2.9.0
 imageio-ffmpeg==0.4.4
 termcolor
-scikit-image
-scipy
+scikit-image==0.19.1
+scipy==1.7.3
 pyyaml
-git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
+# git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
