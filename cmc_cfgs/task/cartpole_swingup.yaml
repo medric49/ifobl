@@ -1,0 +1,10 @@
+train_video_dir: 'videos/cartpole_swingup/train'
+valid_video_dir: 'videos/cartpole_swingup/valid'
+train_cams: [0]
+
+exp_group: 'cartpole_swingup'
+
+batch_size: 16
+episode_len: 60
+
+num_epochs: 8001
