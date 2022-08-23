@@ -12,12 +12,12 @@ tdqm
 
 absl-py==1.2.0
 mujoco_py==2.1.2.14
-dm_control==1.0.3
+dm_control
 opencv-python==4.5.1.48+computecanada
 imageio==2.9.0
 imageio-ffmpeg==0.4.4
-termcolor==1.1.0
-
-pyyaml
+termcolor
+scikit-image
 scipy
+pyyaml
 git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
