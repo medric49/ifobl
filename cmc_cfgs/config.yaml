@@ -11,8 +11,6 @@ batch_size: 64
 episode_len: 30
 num_workers: 4
 
-same_video: false
-
 use_tb: true
 to_lab: true
 

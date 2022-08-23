@@ -49,12 +49,12 @@ class Workspace:
         utils.set_seed_everywhere(cfg.seed)
 
         if not self.cfg.get('meta_world', None):
-            self.expert_env = dmc.make(self.cfg.task_name, self.cfg.expert_frame_stack,
+            self.expert_env = dmc.make(self.cfg.task_name, self.cfg.frame_stack,
                                        self.cfg.action_repeat, self.cfg.seed, self.cfg.get('xml_path', None),
                                        episode_len=self.cfg.episode_len)
         else:
             self.expert_env = metaworld_env.Env(self.cfg.task_name)
-            self.expert_env = dmc.wrap(self.expert_env, self.cfg.expert_frame_stack, self.cfg.action_repeat, episode_len=self.cfg.episode_len)
+            self.expert_env = dmc.wrap(self.expert_env, self.cfg.frame_stack, self.cfg.action_repeat, episode_len=self.cfg.episode_len)
 
         if not self.cfg.get('metaworld_policy', None):
             self.expert: drqv2.DrQV2Agent = drqv2.DrQV2Agent.load(to_absolute_path(self.cfg.expert_file))

@@ -415,6 +415,22 @@ class CMCBasic(CMCModel):
         return video
 
 
+class CMCBasic84(CMCBasic):
+    def __init__(self, hidden_dim, rho, lr):
+        self.rho = rho
+        self.hidden_dim = hidden_dim
+        self.conv = nets.ConvNet84(hidden_dim)
+        self.deconv = nets.ConvNet84(hidden_dim)
+        self.lstm_enc = LSTMEncoder(hidden_dim)
+        self.predictor = Predictor(hidden_dim)
+
+        self.optimizer = torch.optim.Adam(
+            list(self.conv.parameters()) + list(self.deconv.parameters()) + list(self.lstm_enc.parameters()) + list(
+                self.predictor.parameters()), lr)
+        self.contrast_loss = ContrastiveLoss()
+        self.one_side_contrast_loss = OneSideContrastiveLoss()
+
+
 class CMCImgEncoder(CMCModel):
     def __init__(self, hidden_dim, rho, lr):
         super(CMCImgEncoder, self).__init__()

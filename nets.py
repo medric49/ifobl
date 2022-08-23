@@ -42,3 +42,76 @@ class AlexNet224(nn.Module):
         x_l = self.fc_l(x_l)
         x_ab = self.fc_ab(x_ab)
         return x_l, x_ab
+
+
+class DeconvNet84(nn.Module):
+    def __init__(self, hidden_dim):
+        super(DeconvNet84, self).__init__()
+
+        self.network = nn.Sequential(
+            nn.Conv2d(hidden_dim, hidden_dim * 4, kernel_size=1),
+            nn.BatchNorm2d(hidden_dim * 4),
+            nn.LeakyReLU(inplace=True),
+
+            nn.Conv2d(hidden_dim * 4, 512, kernel_size=1),
+            nn.BatchNorm2d(512),
+            nn.LeakyReLU(inplace=True),
+
+            nn.ConvTranspose2d(512, 256, kernel_size=7, stride=2),  # -> 7 x 7
+            nn.LeakyReLU(inplace=True),
+            nn.BatchNorm2d(256),
+
+            nn.ConvTranspose2d(256, 128, kernel_size=5, stride=2),  # -> 17 x 17
+            nn.LeakyReLU(inplace=True),
+            nn.BatchNorm2d(128),
+
+            nn.ConvTranspose2d(128, 64, kernel_size=5, stride=2, output_padding=1),  # -> 40 x 40
+            nn.LeakyReLU(inplace=True),
+            nn.BatchNorm2d(64),
+            nn.ConvTranspose2d(64, 3, kernel_size=5, stride=2, output_padding=1)  # -> 84 x 84
+        )
+
+    def forward(self, e):
+        e = e.view(e.shape[0], e.shape[1], 1, 1)
+        obs = self.network(e)
+        return obs
+
+
+class ConvNet84(nn.Module):
+    def __init__(self, hidden_dim):
+        super(ConvNet84, self).__init__()
+
+        def network(in_channel, hidden_dim):
+            return nn.Sequential(
+                nn.Conv2d(in_channel, 64, kernel_size=5, stride=2),
+                nn.BatchNorm2d(64),
+                nn.LeakyReLU(inplace=True),
+
+                nn.Conv2d(64, 128, kernel_size=5, stride=2),
+                nn.BatchNorm2d(128),
+                nn.LeakyReLU(inplace=True),
+
+                nn.Conv2d(128, 256, kernel_size=5, stride=2),
+                nn.BatchNorm2d(256),
+                nn.LeakyReLU(inplace=True),
+
+                nn.Conv2d(256, 512, kernel_size=7, stride=2),
+                nn.BatchNorm2d(512),
+                nn.LeakyReLU(inplace=True),
+
+                nn.Conv2d(512, hidden_dim * 4, kernel_size=1),
+                nn.BatchNorm2d(hidden_dim * 4),
+                nn.LeakyReLU(inplace=True),
+                nn.Conv2d(hidden_dim * 4, hidden_dim, kernel_size=1),
+                nn.Flatten()
+            )
+
+        self.enc_l = network(1, hidden_dim // 2)
+        self.enc_ab = network(2, hidden_dim // 2)
+
+    def forward(self, x):
+        x_l, x_ab = torch.split(x, [1, 2], dim=1)
+        x_l = self.enc_l(x_l)
+        x_ab = self.enc_ab(x_ab)
+
+        return x_l, x_ab

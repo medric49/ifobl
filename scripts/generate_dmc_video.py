@@ -21,6 +21,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', default='reacher_hard', type=str, help='Environment name', required=False)
     parser.add_argument('--episode_len', default=50, type=int, help='Video length', required=False)
+    parser.add_argument('--im-w', default=64, type=int, help='Frame width', required=False)
+    parser.add_argument('--im-h', default=64, type=int, help='Frame height', required=False)
+
     args, _ = parser.parse_known_args(sys.argv[1:])
 
     episode_len = args.episode_len
@@ -35,7 +38,7 @@ if __name__ == '__main__':
 
     num_train = 5000
     num_valid = 400
-    im_w, im_h = 64, 64
+    im_w, im_h = args.im_w, args.im_h
 
     video_dir = Path(f'videos/{task_name}')
 
