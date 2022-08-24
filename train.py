@@ -66,9 +66,9 @@ class Workspace:
         # else:
         #     self.train_env = metaworld_env.Env(env_name=self.cfg.task_name)
         #     self.eval_env = metaworld_env.Env(env_name=self.cfg.task_name)
-
-            self.train_env = dmc.wrap(self.train_env, self.cfg.frame_stack, self.cfg.action_repeat)
-            self.eval_env = dmc.wrap(self.eval_env, self.cfg.frame_stack, self.cfg.action_repeat)
+        #
+        #     self.train_env = dmc.wrap(self.train_env, self.cfg.frame_stack, self.cfg.action_repeat)
+        #     self.eval_env = dmc.wrap(self.eval_env, self.cfg.frame_stack, self.cfg.action_repeat)
 
         # create replay buffer
         data_specs = (self.train_env.observation_spec(),

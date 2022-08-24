@@ -105,14 +105,14 @@ class Workspace:
                                      self.cfg.learner_camera_id, self.cfg.im_w, self.cfg.im_h,
                                      hydra.utils.instantiate(self.cfg.context_changer),
                                      episode_len=self.cfg.episode_len, to_lab=self.cfg.to_lab, normalize_img=not self.cfg.to_lab)
-        else:
-            self.train_env = metaworld_env.Env(self.cfg.task_name, self.cfg.im_w, self.cfg.im_h)
-            self.train_env = dmc.wrap(self.train_env, self.cfg.frame_stack, self.cfg.action_repeat,
-                                      episode_len=self.cfg.episode_len, to_lab=self.cfg.to_lab, normalize_img=not self.cfg.to_lab)
-
-            self.eval_env = metaworld_env.Env(self.cfg.task_name, self.cfg.im_w, self.cfg.im_h)
-            self.eval_env = dmc.wrap(self.eval_env, self.cfg.frame_stack, self.cfg.action_repeat,
-                                     episode_len=self.cfg.episode_len, to_lab=self.cfg.to_lab, normalize_img=not self.cfg.to_lab)
+        # else:
+        #     self.train_env = metaworld_env.Env(self.cfg.task_name, self.cfg.im_w, self.cfg.im_h)
+        #     self.train_env = dmc.wrap(self.train_env, self.cfg.frame_stack, self.cfg.action_repeat,
+        #                               episode_len=self.cfg.episode_len, to_lab=self.cfg.to_lab, normalize_img=not self.cfg.to_lab)
+        #
+        #     self.eval_env = metaworld_env.Env(self.cfg.task_name, self.cfg.im_w, self.cfg.im_h)
+        #     self.eval_env = dmc.wrap(self.eval_env, self.cfg.frame_stack, self.cfg.action_repeat,
+        #                              episode_len=self.cfg.episode_len, to_lab=self.cfg.to_lab, normalize_img=not self.cfg.to_lab)
 
         self.encoder: cmc_model.CMCModel = cmc_model.CMCModel.load(to_absolute_path(self.cfg.cmc_file)).to(
             utils.device())
