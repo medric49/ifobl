@@ -1,0 +1,19 @@
+exp_group: 'finger_turn_easy_84'
+
+train_video_dir: videos/${exp_group}/train
+valid_video_dir: videos/${exp_group}/valid
+train_cams: [0]
+
+batch_size: 16
+episode_len: 60
+
+num_epochs: 8001
+
+im_w: 84
+im_h: 84
+
+cmc_model:
+  _target_: cmc_model.CMCBasic84
+  lr: 1e-4
+  hidden_dim: 128
+  rho: 1

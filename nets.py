@@ -61,7 +61,7 @@ class DeconvNet84(nn.Module):
             nn.LeakyReLU(inplace=True),
             nn.BatchNorm2d(256),
 
-            nn.ConvTranspose2d(256, 128, kernel_size=5, stride=2),  # -> 17 x 17
+            nn.ConvTranspose2d(256, 128, kernel_size=5, stride=2, output_padding=1),  # -> 18 x 17
             nn.LeakyReLU(inplace=True),
             nn.BatchNorm2d(128),
 

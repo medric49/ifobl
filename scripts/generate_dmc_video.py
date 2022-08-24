@@ -22,6 +22,7 @@ env_data = {
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', default='reacher_hard', type=str, help='Environment name', required=False)
+    parser.add_argument('--video-dir', default=None, type=str, help='Video dir', required=False)
     parser.add_argument('--episode_len', default=50, type=int, help='Video length', required=False)
     parser.add_argument('--im-w', default=64, type=int, help='Frame width', required=False)
     parser.add_argument('--im-h', default=64, type=int, help='Frame height', required=False)
@@ -42,7 +43,10 @@ if __name__ == '__main__':
     num_valid = 400
     im_w, im_h = args.im_w, args.im_h
 
-    video_dir = Path(f'videos/{task_name}')
+    if args.video_dir is not None:
+        video_dir = Path(f'videos/{args.video_dir}')
+    else:
+        video_dir = Path(f'videos/{task_name}')
 
     utils.generate_video_from_expert(
         video_dir / 'train/1', random_agent, env, cc_class(), cam_ids=[0], num=num_train, im_w=im_w, im_h=im_h)
