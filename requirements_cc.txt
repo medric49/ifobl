@@ -1,5 +1,5 @@
-torch==1.12.0+computecanada
-torchvision==0.13.0+computecanada
+torch==1.9.1
+torchvision==0.13.0
 numpy==1.19.2
 tb-nightly==2.11.0a20220818
 pyparsing==2.4.7
@@ -11,13 +11,12 @@ pandas
 tdqm
 
 absl-py==1.2.0
-mujoco_py==2.1.2.14
-dm_control==1.0.3
-opencv-python==4.5.1.48+computecanada
+dm_control==0.0.403778684
+opencv-python==4.5.1.48
 imageio==2.9.0
 imageio-ffmpeg==0.4.4
-termcolor==1.1.0
-
+termcolor
+scikit-image==0.19.1
+scipy==1.7.3
 pyyaml
-scipy
-git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
+# git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld

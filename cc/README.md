@@ -15,3 +15,7 @@ sbatch cc/train_reacher_hard.sh && rm *.outsbatch cc/train_reacher_hard.sh && rm
 sq
 ```
 
+```shell
+salloc --time=1:0:0 --account=rrg-eugenium
+```
+
