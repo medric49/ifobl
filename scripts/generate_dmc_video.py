@@ -31,6 +31,7 @@ if __name__ == '__main__':
 
     episode_len = args.episode_len
     task_name = args.env
+    im_w, im_h = args.im_w, args.im_h
     env_name, expert_file, xml_file, cc_class = env_data[task_name]
 
     expert = DrQV2Agent.load(expert_file)
@@ -41,7 +42,6 @@ if __name__ == '__main__':
 
     num_train = 5000
     num_valid = 400
-    im_w, im_h = args.im_w, args.im_h
 
     if args.video_dir is not None:
         video_dir = Path(f'videos/{args.video_dir}')

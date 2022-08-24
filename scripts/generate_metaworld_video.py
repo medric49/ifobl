@@ -32,14 +32,27 @@ class RandomAgent:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', default='window_close', type=str, help='Environment name', required=False)
-    parser.add_argument('--ep_len', default=45, type=int, help='Video length', required=False)
+    parser.add_argument('--video-dir', default=None, type=str, help='Video dir', required=False)
+    parser.add_argument('--episode_len', default=50, type=int, help='Video length', required=False)
+    parser.add_argument('--im-w', default=64, type=int, help='Frame width', required=False)
+    parser.add_argument('--im-h', default=64, type=int, help='Frame height', required=False)
     args, _ = parser.parse_known_args(sys.argv[1:])
 
     env_dir = args.env
+    im_w, im_h = args.im_w, args.im_h
     expert_file, env_name = env_data[env_dir]
+    episode_len = args.episode_len
+
+    if args.video_dir is not None:
+        video_dir = Path(f'videos/{args.video_dir}')
+    else:
+        video_dir = Path(f'videos/{env_dir}')
+
+    num_train = 5000
+    num_valid = 400
 
     env = metaworld_env.Env(env_name)
-    env = dmc.wrap(env, frame_stack=3, action_repeat=2, episode_len=args.ep_len)
+    env = dmc.wrap(env, frame_stack=3, action_repeat=2, episode_len=episode_len)
     if type(expert_file) != str:
         policy = expert_file()
         expert = metaworld_env.Expert(policy, env)
@@ -48,12 +61,6 @@ if __name__ == '__main__':
     expert.train(False)
     agent = RandomAgent(env)
 
-    num_train = 15000
-    num_valid = 3000
-    ep_len = args.ep_len
-    video_dir = Path(f'videos/{env_dir}')
-
-    im_w, im_h = 64, 64
     utils.generate_video_from_expert(
         video_dir / 'train/0', expert, env, context_changers.NullContextChanger(), cam_ids=[0],
         num=num_train, im_w=im_w, im_h=im_h)
@@ -69,6 +76,3 @@ if __name__ == '__main__':
     utils.generate_video_from_expert(
         video_dir / 'valid/1', agent, env, context_changers.NullContextChanger(), cam_ids=[0],
         num=num_valid, im_w=im_w, im_h=im_h)
-
-
-

@@ -403,7 +403,7 @@ def wrap(env, frame_stack, action_repeat, episode_len=None, to_lab=False, normal
     env = ActionDTypeWrapper(env, np.float32)
     env = ActionRepeatWrapper(env, action_repeat)
     env = action_scale.Wrapper(env, minimum=-1.0, maximum=+1.0)
-    env = FrameStackWrapper(env, frame_stack, 'pixels', to_lab, normalize_img)
+    env = FrameStackWrapper(env, frame_stack, 'pixels')
     env = ExtendedTimeStepWrapper(env)
     if episode_len is not None:
         env = EpisodeLenWrapper(env, episode_len)
