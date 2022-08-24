@@ -1,5 +1,5 @@
-torch==1.12.0+computecanada
-torchvision==0.13.0+computecanada
+torch==1.12.0
+torchvision==0.13.0
 numpy==1.19.2
 tb-nightly==2.11.0a20220818
 pyparsing==2.4.7
@@ -12,7 +12,7 @@ tdqm
 
 absl-py==1.2.0
 dm_control==0.0.403778684
-opencv-python==4.5.1.48+computecanada
+opencv-python==4.5.1.48
 imageio==2.9.0
 imageio-ffmpeg==0.4.4
 termcolor
