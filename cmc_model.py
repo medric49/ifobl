@@ -415,12 +415,13 @@ class CMCBasic(CMCModel):
         return video
 
 
-class CMCBasic84(CMCBasic):
+class CMCBasic84(CMCModel):
     def __init__(self, hidden_dim, rho, lr):
+        super(CMCBasic84, self).__init__()
         self.rho = rho
         self.hidden_dim = hidden_dim
         self.conv = nets.ConvNet84(hidden_dim)
-        self.deconv = nets.ConvNet84(hidden_dim)
+        self.deconv = nets.DeconvNet84(hidden_dim)
         self.lstm_enc = LSTMEncoder(hidden_dim)
         self.predictor = Predictor(hidden_dim)
 
@@ -430,6 +431,159 @@ class CMCBasic84(CMCBasic):
         self.contrast_loss = ContrastiveLoss()
         self.one_side_contrast_loss = OneSideContrastiveLoss()
 
+    def deactivate_state_update(self):
+        for param in self.conv.parameters():
+            param.requires_grad = False
+
+    def encode_frame(self, image):
+        shape = image.shape
+        if len(shape) == 3:
+            image = image.unsqueeze(0)  # 1 x c x h x w
+        e_1, e_2 = self.conv(image)
+        e = torch.cat([e_1, e_2], dim=1)
+        if len(shape) == 3:
+            e = e.squeeze()
+        return e
+
+    def compute_seq_losses(self, e_seq, T, n):
+        h_seq, hidden = self.lstm_enc(e_seq)  # T x 2n x z
+        h_i_seq = h_seq[:, :n, :]
+        h_n_seq = h_seq[:, n:, :]
+        l_seq = 0.
+        for i in range(n):
+            j = (i + 1) % n
+            l_seq += self.one_side_contrast_loss(h_i_seq[-1, i], h_i_seq[-1, j],
+                                                 h_n_seq[-1]) + self.one_side_contrast_loss(h_n_seq[-1, i],
+                                                                                            h_n_seq[-1, j], h_i_seq[-1])
+        l_seq /= n
+
+        l_vaes = 0.
+        future_len = 2
+        k = random.randint(5, T - future_len - 1)
+        e_seq_pred = e_seq[:k + 1]
+        for i in range(k, k + future_len):
+            h = self.lstm_enc(e_seq_pred)[0][-1]
+            e_next_pred = self.predictor(h)
+            e_next_true = e_seq[i + 1]
+            e_neg_sample = torch.cat([e_seq[:i + 1], e_seq[i + 2:]])
+            l_vaes += self.one_side_contrast_loss(e_next_pred, e_next_true, e_neg_sample)
+            e_seq_pred = torch.cat([e_seq_pred, e_next_pred.unsqueeze(0)])
+        l_vaes /= future_len
+        return l_seq, l_vaes
+
+    def compute_img_losses(self, video, e_seq, e_1_seq, e_2_seq, T):
+        t, c_t, nc_t = utils.context_indices(T, context_width=2)
+        e_t = e_seq[t]
+        e_c_t = e_seq[c_t]
+        e_nc_t = e_seq[nc_t]
+        l_frame = self.contrast_loss(e_1_seq.view(-1, self.hidden_dim), e_2_seq.view(-1, self.hidden_dim)) + self.loss_sns(e_t, e_c_t, e_nc_t) + self.contrast_loss(e_t, e_c_t)
+
+        video0 = self._decode(e_seq)
+        l_vaei = 0.
+        for i in range(0, T, PATCH_SIZE):
+            patch = video[i: i + PATCH_SIZE]
+            patch = patch.to(device=utils.device(), dtype=torch.float)
+            patch0 = video0[i: i + PATCH_SIZE]
+            patch0 = patch0.to(device=utils.device(), dtype=torch.float)
+            l_vaei += self.loss_vae_img(patch, patch0) * patch0.shape[0]
+        l_vaei /= T
+        return l_frame, l_vaei
+
+    def evaluate_seq_encoder(self, video_i, video_n, *args, **kwargs):
+        T = video_i.shape[1]
+        n = video_i.shape[0]
+
+        video_i = torch.transpose(video_i, dim0=0, dim1=1)  # T x n x c x h x w
+        video_n = torch.transpose(video_n, dim0=0, dim1=1)  # T x n x c x h x w
+        video = torch.cat([video_i, video_n], dim=1)  # T x 2n x c x h x w
+
+        e_1_seq = []
+        e_2_seq = []
+        for i in range(0, T, PATCH_SIZE):
+            patch = video[i: i + PATCH_SIZE]
+            patch = patch.to(device=utils.device(), dtype=torch.float)
+            e_1, e_2 = self._encode(patch)
+            e_1_seq.append(e_1)
+            e_2_seq.append(e_2)
+
+        e_1_seq = torch.cat(e_1_seq)
+        e_2_seq = torch.cat(e_2_seq)
+        e_seq = torch.cat([e_1_seq, e_2_seq], dim=2)  # T x 2n x z
+
+        l_seq, l_vaes = self.compute_seq_losses(e_seq, T, n)
+
+        loss = 0.
+        loss += l_seq * 0.5
+        loss += l_vaes * 0.5
+
+        metrics = {
+            'loss': loss.item(),
+            'l_seq': l_seq.item(),
+            'l_vaes': l_vaes.item(),
+        }
+
+        return metrics, loss
+
+    def evaluate(self, video_i, video_n, *args, **kwargs):
+        T = video_i.shape[1]
+        n = video_i.shape[0]
+
+        video_i = torch.transpose(video_i, dim0=0, dim1=1)  # T x n x c x h x w
+        video_n = torch.transpose(video_n, dim0=0, dim1=1)  # T x n x c x h x w
+        video = torch.cat([video_i, video_n], dim=1)  # T x 2n x c x h x w
+
+        e_1_seq = []
+        e_2_seq = []
+        for i in range(0, T, PATCH_SIZE):
+            patch = video[i: i + PATCH_SIZE]
+            patch = patch.to(device=utils.device(), dtype=torch.float)
+            e_1, e_2 = self._encode(patch)
+            e_1_seq.append(e_1)
+            e_2_seq.append(e_2)
+
+        e_1_seq = torch.cat(e_1_seq)
+        e_2_seq = torch.cat(e_2_seq)
+        e_seq = torch.cat([e_1_seq, e_2_seq], dim=2)  # T x 2n x z
+
+        l_seq, l_vaes = self.compute_seq_losses(e_seq, T, n)
+        l_frame, l_vaei = self.compute_img_losses(video, e_seq, e_1_seq, e_2_seq, T)
+
+        loss = 0.
+        loss += l_seq * 0.25
+        loss += l_frame * 0.25
+        loss += l_vaes * 0.25
+        loss += l_vaei * 0.25
+
+        metrics = {
+            'loss': loss.item(),
+            'l_seq': l_seq.item(),
+            'l_frame': l_frame.item(),
+            'l_vaes': l_vaes.item(),
+            'l_vaei': l_vaei.item()
+        }
+
+        return metrics, loss
+
+    def _encode(self, video):
+        shape = video.shape  # T x n x c x h x w
+        e_1_seq = []
+        e_2_seq = []
+        for t in range(shape[0]):
+            frame = video[t]  # n x c x h x w
+            e_1, e_2 = self.conv(frame)
+            e_1_seq.append(e_1)
+            e_2_seq.append(e_2)
+        e_1_seq = torch.stack(e_1_seq)  # T x n x z/2
+        e_2_seq = torch.stack(e_2_seq)  # T x n x z/2
+        return e_1_seq, e_2_seq
+
+    def _decode(self, e_seq):
+        video = []
+        for t in range(e_seq.shape[0]):
+            o = self.deconv(e_seq[t]).to(device=torch.device('cpu'))
+            video.append(o)
+        video = torch.stack(video)
+        return video
 
 class CMCImgEncoder(CMCModel):
     def __init__(self, hidden_dim, rho, lr):

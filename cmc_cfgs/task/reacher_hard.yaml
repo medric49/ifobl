@@ -1,10 +1,10 @@
-train_video_dir: 'videos/reacher_hard/train'
-valid_video_dir: 'videos/reacher_hard/valid'
-train_cams: [0]
-
 exp_group: 'reacher_hard'
 
+train_video_dir: videos/${exp_group}/train
+valid_video_dir: videos/${exp_group}/valid
+train_cams: [0]
+
 batch_size: 16
-episode_len: 50
+episode_len: 60
 
 num_epochs: 8001
