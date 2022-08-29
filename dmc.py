@@ -85,7 +85,7 @@ class FrameStackWrapper(dm_env.Environment):
         if len(pixels_shape) == 4:
             pixels_shape = pixels_shape[1:]
 
-        if self.to_lab or self.normalize_img:
+        if self.to_lab:
             self._obs_spec = specs.Array(shape=np.concatenate(
                 [[pixels_shape[2] * num_frames], pixels_shape[:2]], axis=0),
                 dtype=np.float,
@@ -112,11 +112,6 @@ class FrameStackWrapper(dm_env.Environment):
 
         if self.to_lab:
             pixels = utils.rgb_to_lab(pixels)
-        if self.normalize_img:
-            pixels = Image.fromarray(pixels)
-            pixels = np.array(pixels.resize((224, 224), Image.BICUBIC), dtype=np.float32)
-            pixels /= 255.
-            pixels = utils.normalize(pixels, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         return pixels.transpose(2, 0, 1).copy()
 
     def reset(self):
@@ -134,6 +129,69 @@ class FrameStackWrapper(dm_env.Environment):
 
     def observation_spec(self):
         return self._obs_spec
+
+    def action_spec(self):
+        return self._env.action_spec()
+
+    def __getattr__(self, name):
+        return getattr(self._env, name)
+
+
+class RewardComputeStackWrapper(dm_env.Environment):
+
+    def __init__(self, env, encoder, im_w, im_h, to_lab):
+
+        self._env = env
+        self.encoder: cmc_model.CMCModel = encoder
+        self.encoder.eval()
+
+        self.agent_obs = None
+
+        self._im_w = im_w
+        self._im_h = im_h
+        self._to_lab = to_lab
+
+        self.frame_stack = self._env.observation_spec().shape[0] // 3
+
+    def compute_obs_and_rewards(self, expert_video_dir=None, video_frame=None):
+        if expert_video_dir is None and video_frame is None:
+            raise ValueError
+
+        self.encoder.eval()
+        agent_obs = np.array(self.agent_obs, dtype=np.uint8)
+
+        if self._to_lab:
+            agent_episode = datasets.VideoDataset.rgb_to_lab(agent_obs)
+            agent_episode = agent_episode.transpose(0, 3, 1, 2)
+        else:
+            agent_episode = agent_obs.transpose(0, 3, 1, 2)
+
+        if expert_video_dir is not None:
+            expert_episode = datasets.VideoDataset.sample_from_dir(expert_video_dir, self.episode_len)
+            expert_episode = datasets.VideoDataset.transform_frames(expert_episode, self._im_w, self._im_h, self._to_lab)
+        else:
+            expert_episode = video_frame[:self.episode_len + 1]
+            expert_episode = datasets.VideoDataset.transform_frames(expert_episode, self._im_w, self._im_h, self._to_lab)
+        expert_episode = expert_episode.transpose(0, 3, 1, 2)
+
+        with torch.no_grad():
+            expert_seq_states = self.encoder.encode(torch.tensor(expert_episode, dtype=torch.float, device=utils.device())).cpu().numpy()
+            agent_seq_states = self.encoder.encode(torch.tensor(agent_episode, dtype=torch.float, device=utils.device())).cpu().numpy()
+        rewards = - np.linalg.norm(expert_seq_states - agent_seq_states, axis=1)
+        return rewards, agent_obs
+
+    def reset(self) -> TimeStep:
+        time_step = self._env.reset()
+        self.agent_obs = [self.physics.render(height=self._im_h, width=self._im_w, camera_id=0)]
+        return time_step
+
+    def step(self, action) -> TimeStep:
+        time_step = self._env.step(action)
+        self.agent_obs.append(self.physics.render(height=self._im_h, width=self._im_w, camera_id=0))
+        return time_step
+
+    def observation_spec(self):
+        return self._env.observation_spec()
 
     def action_spec(self):
         return self._env.action_spec()
@@ -173,11 +231,11 @@ class EncoderStackWrapper(dm_env.Environment):
         if expert_video_dir is None and video_frame is None:
             raise ValueError
         if expert_video_dir is not None:
-            episode = datasets.VideoDataset.sample_from_dir(expert_video_dir, self.episode_len, self.im_w, self.im_h,
-                                                            self.to_lab)
+            episode = datasets.VideoDataset.sample_from_dir(expert_video_dir, self.episode_len)
+            episode = datasets.VideoDataset.transform_frames(episode, self.im_w, self.im_h, self.to_lab)
         else:
             episode = video_frame[:self.episode_len + 1]
-            episode = datasets.VideoDataset.normalize_frames(episode, self.im_w, self.im_h, self.to_lab)
+            episode = datasets.VideoDataset.transform_frames(episode, self.im_w, self.im_h, self.to_lab)
 
         with torch.no_grad():
             T = len(episode)
@@ -348,7 +406,7 @@ class EpisodeLenWrapper(dm_env.Environment):
         return getattr(self._env, name)
 
 
-def make(name, frame_stack, action_repeat, seed, xml_path=None, camera_id=None, im_w=84, im_h=84, context_changer: context_changers.ContextChanger = None, episode_len=None, to_lab=False, normalize_img=False):
+def make(name, frame_stack, action_repeat, seed, xml_path=None, camera_id=None, im_w=84, im_h=84, context_changer: context_changers.ContextChanger = None, episode_len=None, to_lab=False):
     domain, task = name.split('_', 1)
     # overwrite cup to ball_in_cup
     domain = dict(cup='ball_in_cup').get(domain, domain)
@@ -370,7 +428,6 @@ def make(name, frame_stack, action_repeat, seed, xml_path=None, camera_id=None, 
     env.im_w = im_w
     env.im_h = im_h
     env.to_lab = to_lab
-    env.normalize_img = normalize_img
     env.episode_len = episode_len
 
     # add wrappers
@@ -396,9 +453,8 @@ def make(name, frame_stack, action_repeat, seed, xml_path=None, camera_id=None, 
     return env
 
 
-def wrap(env, frame_stack, action_repeat, episode_len=None, to_lab=False, normalize_img=False):
+def wrap(env, frame_stack, action_repeat, episode_len=None, to_lab=False):
     env.to_lab = to_lab
-    env.normalize_img = normalize_img
     env.episode_len = episode_len
     env = ActionDTypeWrapper(env, np.float32)
     env = ActionRepeatWrapper(env, action_repeat)

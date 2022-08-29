@@ -37,8 +37,6 @@ class VideoDataset(torch.utils.data.IterableDataset):
                     os.remove(f)
             self._files.append(files)
 
-
-
     def _sample(self):
         if len(self._cam_ids) > 1:
             cam1, cam2 = random.sample(self._cam_ids, k=3)
@@ -64,11 +62,6 @@ class VideoDataset(torch.utils.data.IterableDataset):
         if self.to_lab:
             video_i = VideoDataset.rgb_to_lab(video_i)
             video_n = VideoDataset.rgb_to_lab(video_n)
-        else:
-            video_i /= 255.
-            video_n /= 255.
-            video_i = utils.normalize(video_i, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-            video_n = utils.normalize(video_n, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
         video_i = video_i.transpose(0, 3, 1, 2).copy()
         video_n = video_n.transpose(0, 3, 1, 2).copy()
@@ -88,10 +81,10 @@ class VideoDataset(torch.utils.data.IterableDataset):
     @staticmethod
     def rgb_to_lab(video):
         T = video.shape[0]
-        return np.array([utils.rgb_to_lab(video[t]) for t in range(T)])
+        return np.array([utils.rgb_to_lab(video[t]) for t in range(T)], dtype=np.float32)
 
     @staticmethod
-    def sample_from_dir(video_dir, episode_len=None, im_w=64, im_h=64, to_lab=False):
+    def sample_from_dir(video_dir, episode_len=None):
         if episode_len is not None:
             episode_len += 1
         else:
@@ -100,18 +93,14 @@ class VideoDataset(torch.utils.data.IterableDataset):
         video_dir = Path(video_dir)
         files = list(video_dir.iterdir())
         video_i = np.load(random.choice(files))[0, :episode_len]
-        return VideoDataset.normalize_frames(video_i, im_w, im_h, to_lab)
+        return video_i
 
     @staticmethod
-    def normalize_frames(frames, im_w, im_h, to_lab):
+    def transform_frames(frames, im_w, im_h, to_lab):
         if tuple(frames.shape[1:3]) != (im_h, im_w):
             frames = VideoDataset.resize(frames, im_w, im_h)
-
         if to_lab:
             frames = VideoDataset.rgb_to_lab(frames)
-        else:
-            frames /= 255.
-            frames = utils.normalize(frames, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         return frames
 
     @staticmethod

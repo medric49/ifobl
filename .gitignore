@@ -4,6 +4,7 @@ videos
 env
 exp_local
 rl_exp_local
+rlv2_exp_local
 cmc_exp_local
 notebooks
 
@@ -11,4 +12,8 @@ tmp
 experts
 
 venv
+experiments
+experiments.ipynb
+output.png
+
 

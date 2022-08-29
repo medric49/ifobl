@@ -39,8 +39,8 @@ class Workspace:
         utils.set_seed_everywhere(cfg.seed)
         self.encoder: cmc_model.CMCModel = hydra.utils.instantiate(self.cfg.cmc_model).to(utils.device())
 
-        self.dataset = datasets.VideoDataset(to_absolute_path(self.cfg.train_video_dir), self.cfg.episode_len, self.cfg.train_cams, to_lab=self.cfg.to_lab, im_w=self.cfg.im_w, im_h=self.cfg.im_h)
-        self.valid_dataset = datasets.VideoDataset(to_absolute_path(self.cfg.valid_video_dir), self.cfg.episode_len, self.cfg.train_cams, to_lab=self.cfg.to_lab, im_w=self.cfg.im_w, im_h=self.cfg.im_h)
+        self.dataset = datasets.VideoDataset(to_absolute_path(self.cfg.train_video_dir), self.cfg.episode_len, self.cfg.train_cams, to_lab=self.cfg.to_lab, im_w=self.cfg._im_w, im_h=self.cfg._im_h)
+        self.valid_dataset = datasets.VideoDataset(to_absolute_path(self.cfg.valid_video_dir), self.cfg.episode_len, self.cfg.train_cams, to_lab=self.cfg.to_lab, im_w=self.cfg._im_w, im_h=self.cfg._im_h)
 
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset,
