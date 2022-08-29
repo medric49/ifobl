@@ -75,9 +75,9 @@ class Workspace:
         # create envs
         if not self.cfg.get('meta_world', None):
             self.train_env = dmc.make(self.cfg.task_name, self.cfg.frame_stack, self.cfg.action_repeat, self.cfg.seed, self.cfg.get('xml_path', None),
-                                      self.cfg.learner_camera_id, hydra.utils.instantiate(self.cfg.context_changer), episode_len=self.cfg.episode_len)
+                                      self.cfg.learner_camera_id, context_changer=hydra.utils.instantiate(self.cfg.context_changer), episode_len=self.cfg.episode_len)
             self.eval_env = dmc.make(self.cfg.task_name, self.cfg.frame_stack, self.cfg.action_repeat, self.cfg.seed, self.cfg.get('xml_path', None),
-                                     self.cfg.learner_camera_id,  hydra.utils.instantiate(self.cfg.context_changer), episode_len=self.cfg.episode_len)
+                                     self.cfg.learner_camera_id,  context_changer=hydra.utils.instantiate(self.cfg.context_changer), episode_len=self.cfg.episode_len)
         else:
             self.train_env = metaworld_env.Env(self.cfg.task_name)
             self.train_env = dmc.wrap(self.train_env, self.cfg.frame_stack, self.cfg.action_repeat, episode_len=self.cfg.episode_len)
