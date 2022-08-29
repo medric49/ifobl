@@ -88,7 +88,6 @@ class Workspace:
         self.encoder.eval()
 
         self.train_env = dmc.RewardComputeStackWrapper(self.train_env, self.encoder, self.cfg.im_w, self.cfg.im_h, self.cfg.to_lab)
-        self.eval_env = dmc.RewardComputeStackWrapper(self.eval_env, self.encoder, self.cfg.im_w, self.cfg.im_h, self.cfg.to_lab)
 
         # create replay buffer
         data_specs = (
