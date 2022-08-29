@@ -172,8 +172,10 @@ class CMCModel(nn.Module):
 
     def encode(self, video):
         e_seq = self.encode_frame(video)
-        h, _ = self.lstm_enc(e_seq)
-        return h[-1]
+        e_seq = e_seq.unsqueeze(dim=1)
+        h_seq, _ = self.lstm_enc(e_seq)
+        h_seq = h_seq.squeeze(dim=1)
+        return h_seq
 
     def encode_state_seq(self, e_seq):
         e_seq = e_seq.unsqueeze(1)  # T x 1 x z
