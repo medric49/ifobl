@@ -16,4 +16,5 @@ experiments
 experiments.ipynb
 output.png
 
+*.whl
 
