@@ -8,7 +8,7 @@
 
 
 ```shell
-sbatch cc/train_reacher_hard.sh && rm *.outsbatch cc/train_reacher_hard.sh && rm *.out
+sbatch cc/train_reacher_hard.sh && rm *.out
 ```
 
 ```shell
