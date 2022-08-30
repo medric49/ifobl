@@ -165,6 +165,7 @@ class Workspace:
         eval_every_step = utils.Every(self.cfg.eval_every_frames,
                                       self.cfg.action_repeat)
         train_encoder_every_step = utils.Every(self.cfg.train_encoder_every_frames, self.cfg.action_repeat)
+        train_encoder_until_step = utils.Until(self.cfg.num_encoder_train_frames, self.cfg.action_repeat)
 
         episode_step = 0
         time_step = self.train_env.reset()
@@ -182,7 +183,7 @@ class Workspace:
                     reward = episode_rewards[i] if i != 0 else 0.
                     self.replay_storage.add(ts._replace(reward=reward))
 
-                np.save(to_absolute_path(f'{self.cfg.video_dir}/1/{int(time.time() * 1000)}'), agent_obs)
+                np.save(to_absolute_path(f'{self.cfg.video_dir}/1/{int(time.time() * 1000)}'), np.expand_dims(agent_obs, axis=0))
                 self.dataset.update_files(max_num_video=self.cfg.max_num_encoder_videos)
 
                 # wait until all the metrics schema is populated
@@ -222,7 +223,7 @@ class Workspace:
                 action = self.rl_agent.act(state, self.global_step, eval_mode=False)
 
             # try to update the encoder
-            if not seed_until_step(self.global_step) and train_encoder_every_step(self.global_step):
+            if not seed_until_step(self.global_step) and train_encoder_every_step(self.global_step) and train_encoder_until_step(self.global_step):
                 video_i, video_n = next(self.dataloader_iter)
                 video_i = video_i.to(dtype=torch.float)
                 video_n = video_n.to(dtype=torch.float)
