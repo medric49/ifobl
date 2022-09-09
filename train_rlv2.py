@@ -85,6 +85,7 @@ class Workspace:
             self.eval_env = dmc.wrap(self.eval_env, self.cfg.frame_stack, self.cfg.action_repeat, episode_len=self.cfg.episode_len)
 
         self.encoder: cmc_model.CMCModel = cmc_model.CMCModel.load(to_absolute_path(self.cfg.cmc_file)).to(utils.device())
+        # self.encoder: cmc_model.CMCModel = cmc_model.CMCBasic(hidden_dim=128, rho=1, lr=1e-4).to(device=utils.device())
         self.encoder.eval()
 
         self.train_env = dmc.RewardComputeStackWrapper(self.train_env, self.encoder, self.cfg.im_w, self.cfg.im_h, self.cfg.to_lab)
