@@ -1,22 +1,23 @@
-torch==1.9.1
-torchvision==0.13.0
-numpy==1.19.2
-tb-nightly==2.11.0a20220818
-pyparsing==2.4.7
+torch
+torchvision
+numpy
+tb-nightly
+pyparsing
 
-dm-env==1.5
-hydra-core==1.1.1
-hydra-submitit-launcher==1.1.6
+dm-env
+hydra-core
+hydra-submitit-launcher
 pandas
 tdqm
 
-absl-py==1.2.0
-dm_control==0.0.403778684
-opencv-python==4.5.1.48
-imageio==2.9.0
-imageio-ffmpeg==0.4.4
+absl-py
+dm_control
+opencv-python
+imageio
+imageio-ffmpeg
 termcolor
-scikit-image==0.19.1
-scipy==1.7.3
+scikit-image
+scipy
 pyyaml
-# git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
+
+git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld
