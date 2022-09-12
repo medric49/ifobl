@@ -17,6 +17,7 @@ env_data = {
     'hopper_stand': ('hopper_stand', 'exp_local/hopper_stand/1/snapshot.pt', None, context_changers.NullContextChanger),
     'cartpole_swingup': ('cartpole_swingup', 'exp_local/cartpole_swingup/1/snapshot.pt', None, context_changers.NullContextChanger),
     'reacher_easy': ('reacher_easy', 'exp_local/reacher_easy/1/snapshot.pt', None, context_changers.NullContextChanger),
+    'walker_run': ('walker_run', 'exp_local/walker_run/1/snapshot.pt', None, context_changers.NullContextChanger),
 }
 
 if __name__ == '__main__':
