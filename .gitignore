@@ -14,6 +14,7 @@ experts
 venv
 experiments
 experiments.ipynb
+*.ipynb
 output.png
 
 *.whl

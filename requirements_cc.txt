@@ -5,8 +5,8 @@ tb-nightly
 pyparsing
 
 dm-env
-hydra-core
-hydra-submitit-launcher
+hydra-core==1.1.1
+hydra-submitit-launcher==1.1.6
 pandas
 tdqm
 

@@ -227,13 +227,26 @@ class RGB2Lab(object):
         return img
 
 
-def rgb_to_lab(img):
+class Lab2RGB(object):
+    def __call__(self, img):
+        img = color.lab2rgb(img) * 255.
+        img = np.asarray(img, np.uint8)
+        return img
+
+
+def rgb_to_lab(img, normalize=True):
     lab = RGB2Lab()
     img = lab(img)
-    mean = np.array([(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2])
-    std = np.array([(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2])
-    img = (img - mean) / std
+    if normalize:
+        mean = np.array([(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2])
+        std = np.array([(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2])
+        img = (img - mean) / std
     return img
+
+
+def lab_to_rgb(img):
+    rgb = Lab2RGB()
+    return rgb(img)
 
 
 class RandomAgent:
