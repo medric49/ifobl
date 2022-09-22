@@ -1,4 +1,4 @@
-# ifobl
+# Imitation from Observation with Bootstrapped Contrastive Learning
 Imitation from observation algorithm to train agents to perform tasks using only a limited number of pixel-based expert observations and based on a behavioral learning principle.
 
 <p align="center">
@@ -11,14 +11,13 @@ As the agent progresses, its current trajectories are incorporated as "negative"
 </p>
 
 
-
 <p align="center">
-<img src="demo/reacher_hard.png" width="300">
-<img src="demo/hopper_stand.png" width="300">
-<img src="demo/finger_turn_easy.png" width="300">
-<img src="demo/walker_run.png" width="300">
+<img src="demo/reacher_hard.gif" width="300">
+<img src="demo/hopper_stand.gif" width="300">
+<img src="demo/finger_turn_easy.gif" width="300">
+<img src="demo/walker_run.gif" width="300">
 <br>
-Some demonstrations
+Demonstration videos. The expert on the left and the IfO agent on the right.
 </p>
 
 ## Installation
