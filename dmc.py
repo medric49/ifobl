@@ -174,10 +174,14 @@ class RewardComputeStackWrapper(dm_env.Environment):
             expert_episode = datasets.VideoDataset.transform_frames(expert_episode, self._im_w, self._im_h, self._to_lab)
         expert_episode = expert_episode.transpose(0, 3, 1, 2)
 
+        # with torch.no_grad():
+        #     expert_seq_states = self.encoder.encode(torch.tensor(expert_episode, dtype=torch.float, device=utils.device())).cpu().numpy()
+        #     agent_seq_states = self.encoder.encode(torch.tensor(agent_episode, dtype=torch.float, device=utils.device())).cpu().numpy()
+        # rewards = - np.linalg.norm(expert_seq_states - agent_seq_states, axis=1)
         with torch.no_grad():
-            expert_seq_states = self.encoder.encode(torch.tensor(expert_episode, dtype=torch.float, device=utils.device())).cpu().numpy()
-            agent_seq_states = self.encoder.encode(torch.tensor(agent_episode, dtype=torch.float, device=utils.device())).cpu().numpy()
-        rewards = - np.linalg.norm(expert_seq_states - agent_seq_states, axis=1)
+            expert_seq_states = self.encoder.encode(torch.tensor(expert_episode, dtype=torch.float, device=utils.device()))
+            agent_seq_states = self.encoder.encode(torch.tensor(agent_episode, dtype=torch.float, device=utils.device()))
+            rewards = torch.cosine_similarity(expert_seq_states, agent_seq_states).cpu().numpy()
         return rewards, agent_obs
 
     def reset(self) -> TimeStep:
