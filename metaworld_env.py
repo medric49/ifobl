@@ -11,7 +11,7 @@ from dm_env.specs import Array, BoundedArray
 class Env(dm_env.Environment):
     def __init__(self, env_name, im_width=84, im_height=84):
         self._observation = None
-        env_set = metaworld.MT10()
+        env_set = metaworld.MT1(env_name)
         self._metaworld_env = env_set.train_classes[env_name]()
         self._tasks = [task for task in env_set.train_tasks if task.env_name == env_name]
         self.im_w = im_width

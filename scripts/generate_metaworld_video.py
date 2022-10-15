@@ -8,13 +8,17 @@ import utils
 from pathlib import Path
 import dmc
 from metaworld.policies.sawyer_button_press_topdown_v2_policy import SawyerButtonPressTopdownV2Policy
+from metaworld.policies.sawyer_button_press_v2_policy import SawyerButtonPressV2Policy
+from metaworld.policies.sawyer_reach_v2_policy import SawyerReachV2Policy
 import metaworld_env
 
 
 env_data = {
     'window_close': ('exp_local/window_close/1/snapshot.pt', 'window-close-v2'),
     'door_open': ('exp_local/door_open/1/snapshot.pt', 'door-open-v2'),
-    'button_press_topdown': (SawyerButtonPressTopdownV2Policy, 'button-press-topdown-v2')
+    'button_press_topdown': (SawyerButtonPressTopdownV2Policy, 'button-press-topdown-v2'),
+    'reach': (SawyerReachV2Policy, 'reach-v2'),
+    'button_press': (SawyerButtonPressV2Policy, 'button-press-v2'),
 }
 
 
