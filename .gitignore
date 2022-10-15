@@ -9,6 +9,7 @@ cmc_exp_local
 notebooks
 
 tmp
+tmp_videos
 experts
 
 venv
@@ -16,6 +17,8 @@ experiments
 experiments.ipynb
 *.ipynb
 output.png
+/*.png
+
 
 *.whl
 
