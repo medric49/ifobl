@@ -451,8 +451,7 @@ class CMCEfficientNetB0224(CMCModel):
         self.predictor = Predictor(hidden_dim)
 
         self.optimizer = torch.optim.Adam(
-            list(self.conv.parameters()) + list(self.deconv.parameters()) + list(self.lstm_enc.parameters()) + list(
-                self.predictor.parameters()), lr)
+            list(self.conv.parameters()) + list(self.lstm_enc.parameters()) + list(self.predictor.parameters()), lr)
         self.contrast_loss = ContrastiveLoss()
         self.one_side_contrast_loss = OneSideContrastiveLoss()
 
