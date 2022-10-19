@@ -27,6 +27,8 @@ if __name__ == '__main__':
     parser.add_argument('--episode_len', default=50, type=int, help='Video length', required=False)
     parser.add_argument('--im-w', default=64, type=int, help='Frame width', required=False)
     parser.add_argument('--im-h', default=64, type=int, help='Frame height', required=False)
+    parser.add_argument('--num-train', default=5000, type=int, help='Num training videos', required=False)
+    parser.add_argument('--num-valid', default=400, type=int, help='Num validation videos', required=False)
 
     args, _ = parser.parse_known_args(sys.argv[1:])
 
@@ -41,8 +43,8 @@ if __name__ == '__main__':
     env = dmc.make(env_name, frame_stack=3, action_repeat=2, seed=2, episode_len=episode_len, xml_path=xml_file)
     random_agent = utils.RandomAgent(env)
 
-    num_train = 5000
-    num_valid = 400
+    num_train = args.num_train
+    num_valid = args.num_valid
 
     if args.video_dir is not None:
         video_dir = Path(f'videos/{args.video_dir}')
