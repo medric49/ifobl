@@ -40,6 +40,8 @@ if __name__ == '__main__':
     parser.add_argument('--episode_len', default=50, type=int, help='Video length', required=False)
     parser.add_argument('--im-w', default=64, type=int, help='Frame width', required=False)
     parser.add_argument('--im-h', default=64, type=int, help='Frame height', required=False)
+    parser.add_argument('--num-train', default=5000, type=int, help='Num training videos', required=False)
+    parser.add_argument('--num-valid', default=400, type=int, help='Num validation videos', required=False)
     args, _ = parser.parse_known_args(sys.argv[1:])
 
     env_dir = args.env
@@ -52,8 +54,8 @@ if __name__ == '__main__':
     else:
         video_dir = Path(f'videos/{env_dir}')
 
-    num_train = 5000
-    num_valid = 400
+    num_train = args.num_train
+    num_valid = args.num_valid
 
     env = metaworld_env.Env(env_name)
     env = dmc.wrap(env, frame_stack=3, action_repeat=2, episode_len=episode_len)
