@@ -450,7 +450,11 @@ class CMCEfficientNetB0224(CMCModel):
         self.lstm_enc = LSTMEncoder(hidden_dim)
         self.predictor = Predictor(hidden_dim)
 
-        self.optimizer = torch.optim.Adam(list(self.conv.parameters()) + list(self.lstm_enc.parameters()) + list(self.lstm_dec.parameters()), lr)
+        self.optimizer = torch.optim.Adam(
+            list(self.conv.parameters()) + list(self.deconv.parameters()) + list(self.lstm_enc.parameters()) + list(
+                self.predictor.parameters()), lr)
+        self.contrast_loss = ContrastiveLoss()
+        self.one_side_contrast_loss = OneSideContrastiveLoss()
 
     def _encode(self, video):
         T = video.shape[0]  # T x n x s
