@@ -6,6 +6,10 @@ import numpy as np
 from dm_env._environment import TimeStep
 import metaworld
 from dm_env.specs import Array, BoundedArray
+import cv2
+import metaworld.policies
+
+import dmc
 
 
 class Env(dm_env.Environment):
@@ -84,4 +88,16 @@ class Expert:
         action = self.policy.get_action(self.env.metaworld_obs())
         action = self.scale * (action - self.env._metaworld_env.action_space.low) - 1
         return action
+
+
+if __name__ == '__main__':
+    env = Env('plate-slide-v2')
+    env = dmc.wrap(env, frame_stack=3, action_repeat=2, episode_len=60)
+    expert = Expert(metaworld.policies.SawyerPlateSlideV2Policy(), env)
+    timestep = env.reset()
+    for i in range(120):
+        cv2.imshow('Image', env.render())
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+        timestep = env.step(expert.act())
 
