@@ -6,7 +6,7 @@ meta_world: true
 
 im_w: 224
 im_h: 224
-to_lab: 224
+to_lab: false
 
 task_name: button-press-v2
 exp_group: button_press_224
