@@ -15,8 +15,8 @@ class EfficientNetB0(nn.Module):
                 param.requires_grad = False
 
     def forward(self, image):
-        mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32, device=image.device).view((0, 3, 1, 1))
-        std = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32, device=image.device).view((0, 3, 1, 1))
+        mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32, device=image.device).view((1, 3, 1, 1))
+        std = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32, device=image.device).view((1, 3, 1, 1))
         image /= 255.
         image = (image - mean) / (std + 1e-8)
         x = self.encoder.features(image)
