@@ -147,7 +147,7 @@ def schedule(schdl, step):
 
 
 def device():
-    return torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    return torch.device(f'cuda:{torch.cuda.device_count() -1}') if torch.cuda.is_available() else torch.device('cpu')
 
 
 def generate_video_from_expert(root_dir, expert, env, context_changer, cam_ids, num=800, num_valid=None, im_w=64, im_h=64):

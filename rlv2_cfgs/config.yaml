@@ -32,7 +32,7 @@ batch_size: 256
 # misc
 seed: 1
 save_video: true
-save_train_video: true
+save_train_video: false
 use_tb: true
 # experiment
 experiment: exp
@@ -46,7 +46,6 @@ agent:
   _target_: drqv2.DrQV2Agent
   obs_shape: ??? # to be specified later
   action_shape: ??? # to be specified later
-  device: ${device}
   lr: ${lr}
   critic_target_tau: 0.01
   update_every_steps: 2

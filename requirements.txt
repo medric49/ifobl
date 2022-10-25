@@ -1,7 +1,7 @@
 torch==1.12.1
 torchvision==0.13.1
 numpy==1.19.2
-tb-nightly==2.11.0a20220821
+tb-nightly
 pyparsing==2.4.7
 scikit-image==0.19.3
 matplotlib==3.4.2

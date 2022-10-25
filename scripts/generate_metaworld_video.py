@@ -10,6 +10,7 @@ import dmc
 from metaworld.policies.sawyer_button_press_topdown_v2_policy import SawyerButtonPressTopdownV2Policy
 from metaworld.policies.sawyer_button_press_v2_policy import SawyerButtonPressV2Policy
 from metaworld.policies.sawyer_reach_v2_policy import SawyerReachV2Policy
+import metaworld.policies
 import metaworld_env
 
 
@@ -19,6 +20,7 @@ env_data = {
     'button_press_topdown': (SawyerButtonPressTopdownV2Policy, 'button-press-topdown-v2'),
     'reach': (SawyerReachV2Policy, 'reach-v2'),
     'button_press': (SawyerButtonPressV2Policy, 'button-press-v2'),
+    'plate_slide': (metaworld.policies.SawyerPlateSlideV2Policy, 'plate-slide-v2'),
 }
 
 

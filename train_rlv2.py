@@ -37,7 +37,7 @@ def _worker_init_fn(worker_id):
 def _make_agent(obs_spec, action_spec, cfg):
     cfg.obs_shape = obs_spec.shape
     cfg.action_shape = action_spec.shape
-    return hydra.utils.instantiate(cfg)
+    return hydra.utils.instantiate(cfg, device=utils.device())
 
 
 class Workspace:

@@ -1,4 +1,4 @@
-exp_group: button_press_224
+exp_group: plate_slide_224
 
 train_video_dir: videos/${exp_group}/train
 valid_video_dir: videos/${exp_group}/valid
