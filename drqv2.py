@@ -258,5 +258,7 @@ class DrQV2Agent:
     @staticmethod
     def load(file, key='agent'):
         with open(file, 'rb') as f:
-            payload = torch.load(f)
-        return payload[key]
+            payload = torch.load(f, map_location=utils.device())
+        agent = payload[key]
+        agent.device = utils.device()
+        return agent

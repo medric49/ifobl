@@ -241,7 +241,7 @@ class CMCModel(nn.Module):
     def load(file):
         snapshot = Path(file)
         with snapshot.open('rb') as f:
-            payload = torch.load(f)
+            payload = torch.load(f, map_location=utils.device())
         return payload['encoder']
 
 

@@ -6,6 +6,7 @@ train_cams: [0]
 
 im_w: 224
 im_h: 224
+to_lab: false
 
 episode_len: 50
 batch_size: 16

@@ -6,6 +6,7 @@ meta_world: true
 
 im_w: 224
 im_h: 224
+to_lab: false
 
 task_name: plate-slide-v2
 exp_group: plate_slide_224
