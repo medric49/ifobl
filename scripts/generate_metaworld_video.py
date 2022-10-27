@@ -21,6 +21,7 @@ env_data = {
     'reach': (SawyerReachV2Policy, 'reach-v2'),
     'button_press': (SawyerButtonPressV2Policy, 'button-press-v2'),
     'plate_slide': (metaworld.policies.SawyerPlateSlideV2Policy, 'plate-slide-v2'),
+    'drawer_close': (metaworld.policies.SawyerDrawerCloseV2Policy, 'drawer-close-v2'),
 }
 
 
