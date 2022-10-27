@@ -91,9 +91,9 @@ class Expert:
 
 
 if __name__ == '__main__':
-    env = Env('plate-slide-v2')
+    env = Env('drawer-close-v2')
     env = dmc.wrap(env, frame_stack=3, action_repeat=2, episode_len=60)
-    expert = Expert(metaworld.policies.SawyerPlateSlideV2Policy(), env)
+    expert = Expert(metaworld.policies.SawyerDrawerCloseV2Policy(), env)
     timestep = env.reset()
     for i in range(120):
         cv2.imshow('Image', env.render())

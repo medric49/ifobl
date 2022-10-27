@@ -8,8 +8,8 @@ im_w: 224
 im_h: 224
 to_lab: false
 
-task_name: plate-slide-v2
-exp_group: plate_slide_224
+task_name: drawer-close-v2
+exp_group: drawer_close_224
 
 max_num_encoder_videos: 1500
 num_encoder_train_frames: 700000
