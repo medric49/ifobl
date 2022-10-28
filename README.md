@@ -12,10 +12,12 @@ As the agent progresses, its current trajectories are incorporated as "negative"
 
 
 <p align="center">
-<img src="demo/reacher_hard.gif" width="300">
-<img src="demo/hopper_stand.gif" width="300">
-<img src="demo/finger_turn_easy.gif" width="300">
-<img src="demo/walker_run.gif" width="300">
+<img src="demo/reacher_hard.gif" width="250">
+<img src="demo/hopper_stand.gif" width="250">
+<img src="demo/finger_turn_easy.gif" width="250">
+<img src="demo/walker_run.gif" width="250">
+<img src="demo/drawer_close.gif" width="250">
+<img src="demo/button_press.gif" width="250">
 <br>
 Demonstration videos. The expert on the left and the IfO agent on the right.
 </p>
