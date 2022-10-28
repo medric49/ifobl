@@ -43,9 +43,9 @@ tensorboard --logdir exp_local
 
 * Generate 5000 expert videos
 ```shell
-python scripts/generate_dmc_video.py --env reacher_hard2 --episode_len 60
+export PYTHONPATH="${PYTHONPATH}:`pwd`" && python scripts/generate_dmc_video.py --env reacher_hard2 --episode_len 60
 ```
-The number of expert videos to generate is hard-coded. Change it in `scripts/generate_dmc_video.py`.
+Use `--num-train` and `--num-valid` flags to change respectively the number of training and validation videos to generate.
 
 * Pretrain image and video encoders
 ```shell
