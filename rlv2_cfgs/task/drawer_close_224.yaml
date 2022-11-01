@@ -14,7 +14,6 @@ exp_group: drawer_close_224
 max_num_encoder_videos: 1500
 num_encoder_train_frames: 700000
 
-expert_file: exp_local/${task_name}/1/snapshot.pt
 cmc_file: cmc_exp_local/${exp_group}/1/snapshot.pt
 video_dir: videos/${exp_group}/exp
 

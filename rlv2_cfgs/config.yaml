@@ -20,7 +20,6 @@ eval_every_frames: 10000
 train_encoder_every_frames: 100
 num_encoder_train_frames: 750000
 max_num_encoder_videos: 5000
-critic_target_tau: 0.01
 num_eval_episodes: 5
 # snapshot
 save_snapshot: true
